@@ -1,19 +1,18 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Paciente } from '../../pacientes/entities/paciente.entity';
-import { Profesional } from '../../profesionales/entities/profesional.entity';
+import { Usuario } from 'src/auth/entities/user.entity';
 
 @Entity('historias_clinicas')
 export class HistoriaClinica {
   @PrimaryGeneratedColumn('uuid')
   uid: string;
 
-  @ManyToOne(() => Paciente, { eager: true })
+  @ManyToOne(() => Usuario, { eager: true })
   @JoinColumn({ name: 'paciente_uid' })
-  paciente: Paciente;
-
-  @ManyToOne(() => Profesional, { eager: true })
+  paciente: Usuario;
+  
+  @ManyToOne(() => Usuario, { eager: true })
   @JoinColumn({ name: 'profesional_uid' })
-  profesional: Profesional;
+  profesional: Usuario;
 
   @Column('date')
   fecha: Date;

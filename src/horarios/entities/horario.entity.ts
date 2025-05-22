@@ -1,14 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Profesional } from '../../profesionales/entities/profesional.entity';
+import { Usuario } from 'src/auth/entities/user.entity';
 
 @Entity('horarios')
 export class Horario {
   @PrimaryGeneratedColumn('uuid')
   uid: string;
 
-  @ManyToOne(() => Profesional, { eager: true })
+  @ManyToOne(() => Usuario, { eager: true })
   @JoinColumn({ name: 'profesional_uid' })
-  profesional: Profesional;
+  profesional: Usuario;
 
   @Column('date')
   fecha: Date;

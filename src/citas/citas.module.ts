@@ -3,15 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CitasService } from './citas.service';
 import { CitasController } from './citas.controller';
 import { Cita } from './entities/cita.entity';
-import { ProfesionalesModule } from 'src/profesionales/profesionales.module';
 import { SedesModule } from 'src/sedes/sedes.module';
-import { PacientesModule } from 'src/pacientes/pacientes.module';
+import { Usuario } from 'src/auth/entities/user.entity';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cita]),
-  ProfesionalesModule,
-  SedesModule,
-  PacientesModule
+  imports: [TypeOrmModule.forFeature([Cita, Usuario]),
+  AuthModule,
+  SedesModule
 ],
   controllers: [CitasController],
   providers: [CitasService],

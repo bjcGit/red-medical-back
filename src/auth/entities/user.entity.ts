@@ -1,8 +1,11 @@
 
+import { Sede } from 'src/sedes/entities/sede.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,62 +16,58 @@ export class Usuario {
   @PrimaryGeneratedColumn('uuid')
   uid: string;
 
-  @Column('varchar')
-  rol: string;
+  @Column({ unique: true })
+  correo: string;
 
-  @Column('varchar')
+  @Column({ nullable: true, select: false })
+  password?: string;
+
+  @Column()
   nombre: string;
 
-  @Column('varchar')
-  sexo: string;
-
-  @Column('varchar', { nullable: true, default: 'No registra' })
-  fecha_nacimiento: string;
-
-  @Column('varchar', { nullable: true, default: 'No registra' })
-  fecha_ingreso: string;
-
-  @Column('int')
-  registro: number;
+  @Column('varchar', { default: 'PACIENTE' })
+  rol: string;
 
   @Column('varchar', { unique: true })
   cedula: string;
 
-  @Column('varchar', {
-    unique: true, nullable: true, default: 'No registra',
-  })
-  username: string;
+  @Column({ nullable: true })
+  telefono?: string;
 
-  @Column('varchar', { unique: true })
-  correo: string;
+  @Column({ nullable: true })
+  direccion?: string;
 
-  @Column('varchar', { nullable: true, default: 'No registra' })
-  telefono: string;
+  @Column({ nullable: true })
+  sexo?: string;
 
-  @Column('varchar', { nullable: true, default: 'No registra' })
-  direccion: string;
+  @Column({ nullable: true })
+  fecha_nacimiento?: Date;
 
-  @Column('varchar', { nullable: true, default: 'No registra' })
-  eps: string;
+  @Column({ nullable: true })
+  especialidad?: string;
 
-  @Column('varchar', { nullable: true, default: 'Activo' })
-  isEstado: string;
+  @Column({ nullable: true })
+  registro_profesional?: string;
 
-  @Column('int', { nullable: true, default: 1 })
-  creado_por: number;
+  @Column({ nullable: true })
+  cargo?: string;
 
-  @Column('int', { nullable: true, default: 1 })
-  modificado_por: number;
+  @Column({ nullable: true })
+  eps?: string;
+
+  @Column({ default: true })
+  estado: boolean;
+
+  @Column({ nullable: true })
+  isEstado?: string;
+
+  @ManyToOne(() => Sede, { nullable: true, eager: true })
+  @JoinColumn({ name: 'sede_id' })
+  sede?: Sede;
 
   @CreateDateColumn()
   fecha_creacion: Date;
 
-  @UpdateDateColumn({nullable: true})
+  @UpdateDateColumn({ nullable: true })
   fecha_modificacion: Date;
-
-  @Column('boolean', {
-    default: true,
-  })
-  estado: boolean;
-
 }

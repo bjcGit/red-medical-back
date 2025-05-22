@@ -11,6 +11,7 @@ import { handleCustomError } from "src/functions/error";
 import { LoginUserDto } from "./dto/login-user.dto";
 import { JwtPayload } from "./interfaces/jwt-payload";
 import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -25,63 +26,100 @@ export class AuthService {
     return token;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<Usuario> {
-    try {
-      const user = this.authRepository.create({ ...createUserDto });
-      await this.authRepository.save(user);
-      return user;
-    } catch (error) {
-      console.error(error);
-      throw handleCustomError(error);
+async create(createUserDto: CreateUserDto): Promise<Usuario> {
+  try {
+    const { correo, cedula, password, ...resto } = createUserDto;
+
+    // Validar existencia por correo o cédula
+    const existe = await this.authRepository.findOne({
+      where: [{ correo }, { cedula }],
+    });
+
+    if (existe) {
+      throw new BadRequestException('Ya existe un usuario con ese correo o cédula');
     }
-  }
 
-  async login(loginUserDto: LoginUserDto) {
-
-    try {
-      const { correo, password} = loginUserDto;
-
-  
-        const user = await this.authRepository.findOne({
-          where: { correo },
-          select: {
-            username: true,
-            uid: true,
-            rol: true,
-            nombre: true,
-            estado: true,
-          },
-        });
-
-        if (!user) {
-          throw new BadRequestException({
-            message:
-              "Necesitas permisos del administrador del aplicativo para ingresar aquí",
-          });
-        }
-
-        if (!user.estado) {
-          throw new BadRequestException({
-            message: "Usuario desactivado, comunicate con el administrador",
-          });
-        }
-
-        return {
-          token: this.getJwtToken({ uid: user.uid }),
-          user: {
-            id: user.uid,
-            username: user.username,
-            nombre: user.nombre,
-            rol: user.rol,
-          },
-        };
-      
-
-    } catch (error) {
-      console.error(error);
-      throw new BadRequestException("Error en el servicio, revisa los logs");
+    // Encriptar contraseña si existe
+    let hashedPassword: string | undefined;
+    if (password) {
+      const salt = await bcrypt.genSalt();
+      hashedPassword = await bcrypt.hash(password, salt);
     }
+
+    // Crear usuario
+    const user = this.authRepository.create({
+      ...resto,
+      correo,
+      cedula,
+      password: hashedPassword,
+    });
+
+    const nuevoUsuario = await this.authRepository.save(user);
+
+    // Evitar retornar el password
+    delete (nuevoUsuario as any).password;
+
+    return nuevoUsuario;
+
+  } catch (error) {
+    console.error(error);
+    throw handleCustomError(error);
   }
+}
+
+async login(loginUserDto: LoginUserDto) {
+  try {
+    const { correo, password } = loginUserDto;
+
+    // Buscar usuario incluyendo el password encriptado
+    const user = await this.authRepository.findOne({
+      where: { correo },
+      select: {
+        uid: true,
+        correo: true,
+        password: true,
+        rol: true,
+        nombre: true,
+        estado: true,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException({
+        message: "Necesitas permisos del administrador del aplicativo para ingresar aquí",
+      });
+    }
+
+    if (!user.estado) {
+      throw new BadRequestException({
+        message: "Usuario desactivado, comunícate con el administrador",
+      });
+    }
+
+    // Validar que el password coincida
+    const passwordValido = await bcrypt.compare(password, user.password);
+    if (!passwordValido) {
+      throw new BadRequestException({
+        message: "Credenciales incorrectas",
+      });
+    }
+
+    // Retornar token y datos públicos
+    return {
+      token: this.getJwtToken({ uid: user.uid }),
+      user: {
+        id: user.uid,
+        correo: user.correo,
+        nombre: user.nombre,
+        rol: user.rol,
+      },
+    };
+
+  } catch (error) {
+    console.error(error);
+    throw new BadRequestException("Error en el servicio, revisa los logs");
+  }
+}
 
   async checkAuthStatus(user: Usuario) {
     const { uid } = user;

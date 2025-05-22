@@ -27,11 +27,17 @@ export class SedesService {
   }
 
   async findOne(uid: string): Promise<Sede> {
-    const sede = await this.sedeRepository.findOneBy({ uid });
+   try {
+     const sede = await this.sedeRepository.findOneBy({ uid });
     if (!sede) {
       throw new NotFoundException('Sede no encontrada');
     }
     return sede;
+    
+   } catch (error) {
+    console.log(error)
+    throw new BadRequestException('No se pudo encontrar la sede');
+   }
   }
 
   async update(uid: string, updateSedeDto: UpdateSedeDto): Promise<Sede> {

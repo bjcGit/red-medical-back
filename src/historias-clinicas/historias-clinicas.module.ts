@@ -3,11 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HistoriasClinicasService } from './historias-clinicas.service';
 import { HistoriasClinicasController } from './historias-clinicas.controller';
 import { HistoriaClinica } from './entities/historia-clinica.entity';
-import { PacientesModule } from '../pacientes/pacientes.module';
-import { ProfesionalesModule } from '../profesionales/profesionales.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([HistoriaClinica]), PacientesModule, ProfesionalesModule],
+  imports: [
+    TypeOrmModule.forFeature([HistoriaClinica]),
+    AuthModule
+  ],
   controllers: [HistoriasClinicasController],
   providers: [HistoriasClinicasService],
   exports: [HistoriasClinicasService],

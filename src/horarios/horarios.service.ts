@@ -4,33 +4,38 @@ import { Repository } from 'typeorm';
 import { Horario } from './entities/horario.entity';
 import { CreateHorarioDto } from './dto/create-horario.dto';
 import { UpdateHorarioDto } from './dto/update-horario.dto';
-import { ProfesionalesService } from '../profesionales/profesionales.service';
+import { UsuariosService } from 'src/usuarios/usuarios.service';
+import { Usuario } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class HorariosService {
   constructor(
     @InjectRepository(Horario)
     private readonly horarioRepository: Repository<Horario>,
-    private readonly profesionalesService: ProfesionalesService,
+
+    @InjectRepository(Usuario)
+    private readonly usuariosService: UsuariosService,
   ) {}
 
-  async create(createHorarioDto: CreateHorarioDto): Promise<Horario> {
-    // Validar existencia de profesional
-    const profesional = await this.profesionalesService.findOne(createHorarioDto.profesional_uid);
-    if (!profesional) {
-      throw new BadRequestException('Profesional no válido');
-    }
-    try {
-      const horario = this.horarioRepository.create({
-        ...createHorarioDto,
-        profesional,
-      });
-      await this.horarioRepository.save(horario);
-      return horario;
-    } catch (error) {
-      throw new BadRequestException('No se pudo crear el horario');
-    }
+async create(createHorarioDto: CreateHorarioDto): Promise<Horario> {
+  const profesional = await this.usuariosService.findOne(createHorarioDto.profesional_uid);
+
+  if (!profesional || profesional.rol !== 'PROFESIONAL') {
+    throw new BadRequestException('Profesional no válido o con rol incorrecto');
   }
+
+  try {
+    const horario = this.horarioRepository.create({
+      ...createHorarioDto,
+      profesional,
+    });
+    await this.horarioRepository.save(horario);
+    return horario;
+  } catch (error) {
+    throw new BadRequestException('No se pudo crear el horario');
+  }
+}
+
 
   async findAll(): Promise<Horario[]> {
     return this.horarioRepository.find();

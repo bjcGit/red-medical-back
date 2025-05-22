@@ -4,13 +4,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
-import { PacientesModule } from './pacientes/pacientes.module';
-import { ProfesionalesModule } from './profesionales/profesionales.module';
 import { SedesModule } from './sedes/sedes.module';
 import { CitasModule } from './citas/citas.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { HistoriasClinicasModule } from './historias-clinicas/historias-clinicas.module';
-import { AdministrativosModule } from './administrativos/administrativos.module';
+import { PrescripcionesModule } from './prescripciones/prescripciones.module';
 
 
 @Module({
@@ -31,13 +29,11 @@ import { AdministrativosModule } from './administrativos/administrativos.module'
     CommonModule,   
     AuthModule,
     UsuariosModule,
-    PacientesModule,
-    ProfesionalesModule,
     SedesModule,
     CitasModule,
     HorariosModule,
     HistoriasClinicasModule,
-    AdministrativosModule,
+    PrescripcionesModule,
 
   ],
   controllers: [],

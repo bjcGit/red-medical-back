@@ -44,7 +44,7 @@ export class AuthController {
   }
 
   @Get('validate')
-  @RolProtected(Rol.trabajador)
+  @RolProtected(Rol.administrativo)
   @UseGuards(AuthGuard(), UserRoleGuard)
   findvalidateUser(
     @GetUser() user: Usuario,
