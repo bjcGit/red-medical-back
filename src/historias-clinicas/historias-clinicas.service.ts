@@ -49,19 +49,6 @@ export class HistoriasClinicasService {
   }
 
   async update(uid: string, updateHistoriaClinicaDto: UpdateHistoriaClinicaDto): Promise<HistoriaClinica> {
-    // Validar existencia de paciente y profesional si se actualizan
-    if (updateHistoriaClinicaDto.paciente_uid) {
-      const paciente = await this.pacientesService.findOne(updateHistoriaClinicaDto.paciente_uid);
-      if (!paciente) {
-        throw new BadRequestException('Paciente no válido');
-      }
-    }
-    if (updateHistoriaClinicaDto.profesional_uid) {
-      const profesional = await this.profesionalesService.findOne(updateHistoriaClinicaDto.profesional_uid);
-      if (!profesional) {
-        throw new BadRequestException('Profesional no válido');
-      }
-    }
     const historia = await this.historiaClinicaRepository.findOneBy({ uid });
     if (!historia) {
       throw new NotFoundException('Historia clínica no encontrada');

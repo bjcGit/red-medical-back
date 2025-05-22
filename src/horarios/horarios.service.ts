@@ -45,13 +45,6 @@ export class HorariosService {
   }
 
   async update(uid: string, updateHorarioDto: UpdateHorarioDto): Promise<Horario> {
-    // Validar existencia de profesional si se actualiza
-    if (updateHorarioDto.profesional_uid) {
-      const profesional = await this.profesionalesService.findOne(updateHorarioDto.profesional_uid);
-      if (!profesional) {
-        throw new BadRequestException('Profesional no válido');
-      }
-    }
     const horario = await this.horarioRepository.findOneBy({ uid });
     if (!horario) {
       throw new NotFoundException('Horario no encontrado');

@@ -53,25 +53,6 @@ export class CitasService {
   }
 
   async update(uid: string, updateCitaDto: UpdateCitaDto): Promise<Cita> {
-    // Validar existencia de paciente, profesional y sede si se actualizan
-    if (updateCitaDto.paciente_uid) {
-      const paciente = await this.pacientesService.findOne(updateCitaDto.paciente_uid);
-      if (!paciente) {
-        throw new BadRequestException('Paciente no válido');
-      }
-    }
-    if (updateCitaDto.profesional_uid) {
-      const profesional = await this.profesionalesService.findOne(updateCitaDto.profesional_uid);
-      if (!profesional) {
-        throw new BadRequestException('Profesional no válido');
-      }
-    }
-    if (updateCitaDto.sede_uid) {
-      const sede = await this.sedesService.findOne(updateCitaDto.sede_uid);
-      if (!sede) {
-        throw new BadRequestException('Sede no válida');
-      }
-    }
     const cita = await this.citaRepository.findOneBy({ uid });
     if (!cita) {
       throw new NotFoundException('Cita no encontrada');
