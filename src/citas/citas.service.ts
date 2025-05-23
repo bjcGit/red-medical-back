@@ -1,13 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { Cita } from './entities/cita.entity';
 import { CreateCitaDto } from './dto/create-cita.dto';
 import { UpdateCitaDto } from './dto/update-cita.dto';
 import { SedesService } from '../sedes/sedes.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
-import { Sede } from 'src/sedes/entities/sede.entity';
-import { Usuario } from 'src/auth/entities/user.entity';
+import { addMinutes } from 'date-fns';
 
 @Injectable()
 export class CitasService {
@@ -15,17 +18,16 @@ export class CitasService {
     @InjectRepository(Cita)
     private readonly citaRepository: Repository<Cita>,
 
-    @InjectRepository(Usuario)
     private readonly usuariosService: UsuariosService,
-
-    @InjectRepository(Sede)
     private readonly sedesService: SedesService,
   ) {}
 
 async create(createCitaDto: CreateCitaDto): Promise<Cita> {
-  const paciente = await this.usuariosService.findOne(createCitaDto.paciente_uid);
-  const profesional = await this.usuariosService.findOne(createCitaDto.profesional_uid);
-  const sede = await this.sedesService.findOne(createCitaDto.sede_uid);
+  const { paciente_uid, profesional_uid, sede_uid, fecha_hora } = createCitaDto;
+
+  const paciente = await this.usuariosService.findOne(paciente_uid);
+  const profesional = await this.usuariosService.findOne(profesional_uid);
+  const sede = await this.sedesService.findOne(sede_uid);
 
   if (!paciente || paciente.rol !== 'PACIENTE') {
     throw new BadRequestException('Paciente inválido o no es del rol PACIENTE');
@@ -35,19 +37,48 @@ async create(createCitaDto: CreateCitaDto): Promise<Cita> {
     throw new BadRequestException('Profesional inválido o no es del rol PROFESIONAL');
   }
 
+  // Rango de 30 minutos
+  const start = new Date(fecha_hora);
+  const end = addMinutes(start, 30);
+
+  // Validar si el paciente ya tiene cita en ese rango
+  const citaPaciente = await this.citaRepository
+    .createQueryBuilder('cita')
+    .where('cita.paciente_uid = :paciente_uid', { paciente_uid })
+    .andWhere('cita.fecha_hora BETWEEN :start AND :end', { start, end })
+    .getOne();
+
+  if (citaPaciente) {
+    throw new BadRequestException('El paciente ya tiene una cita agendada dentro de ese horario');
+  }
+
+  // Validar si el profesional ya tiene cita en ese rango
+  const citaProfesional = await this.citaRepository
+    .createQueryBuilder('cita')
+    .where('cita.profesional_uid = :profesional_uid', { profesional_uid })
+    .andWhere('cita.fecha_hora BETWEEN :start AND :end', { start, end })
+    .getOne();
+
+  if (citaProfesional) {
+    throw new BadRequestException('El profesional ya tiene una cita agendada dentro de ese horario');
+  }
+
   try {
     const cita = this.citaRepository.create({
       ...createCitaDto,
       paciente,
       profesional,
       sede,
+      estado: 'Programada',
     });
-    await this.citaRepository.save(cita);
-    return cita;
+
+    return await this.citaRepository.save(cita);
   } catch (error) {
+    console.error(error);
     throw new BadRequestException('No se pudo crear la cita');
   }
 }
+
 
   async findAll(): Promise<Cita[]> {
     return this.citaRepository.find();
@@ -62,20 +93,49 @@ async create(createCitaDto: CreateCitaDto): Promise<Cita> {
   }
 
   async update(uid: string, updateCitaDto: UpdateCitaDto): Promise<Cita> {
-    const cita = await this.citaRepository.findOneBy({ uid });
-    if (!cita) {
-      throw new NotFoundException('Cita no encontrada');
+    const cita = await this.findOne(uid);
+
+    const { fecha_hora, profesional_uid, paciente_uid } = updateCitaDto;
+
+    if (fecha_hora && profesional_uid) {
+      const conflictoProfesional = await this.citaRepository.findOne({
+        where: {
+          profesional: { uid: profesional_uid },
+          fecha_hora,
+          uid: Not(uid),
+        },
+      });
+      if (conflictoProfesional) {
+        throw new BadRequestException('El profesional no está disponible en la nueva fecha y hora');
+      }
     }
-    const actualizado = this.citaRepository.merge(cita, updateCitaDto);
-    await this.citaRepository.save(actualizado);
-    return actualizado;
+
+    if (fecha_hora && paciente_uid) {
+      const conflictoPaciente = await this.citaRepository.findOne({
+        where: {
+          paciente: { uid: paciente_uid },
+          fecha_hora,
+          uid: Not(uid),
+        },
+      });
+      if (conflictoPaciente) {
+        throw new BadRequestException('El paciente ya tiene una cita en la nueva fecha y hora');
+      }
+    }
+
+    const actualizada = this.citaRepository.merge(cita, updateCitaDto);
+    return await this.citaRepository.save(actualizada);
   }
 
-  async remove(uid: string): Promise<void> {
-    const cita = await this.citaRepository.findOneBy({ uid });
-    if (!cita) {
-      throw new NotFoundException('Cita no encontrada');
+  async cancelar(uid: string): Promise<{ mensaje: string }> {
+    const cita = await this.findOne(uid);
+    try {
+      cita.estado = 'Cancelada';
+      await this.citaRepository.save(cita);
+      return { mensaje: 'Cita cancelada correctamente' };
+    } catch (error) {
+      console.error('Error al cancelar cita:', error);
+      throw new BadRequestException('No se pudo cancelar la cita');
     }
-    await this.citaRepository.remove(cita);
   }
 }

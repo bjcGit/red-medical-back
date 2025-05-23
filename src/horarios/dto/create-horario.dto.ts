@@ -7,8 +7,8 @@ export class CreateHorarioDto {
   profesional_uid: string;
 
   @ApiProperty()
-  @IsDateString()
-  fecha: Date;
+  @IsString()
+  fecha: string;
 
   @ApiProperty()
   @IsString()

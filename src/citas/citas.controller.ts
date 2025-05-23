@@ -27,8 +27,8 @@ export class CitasController {
     return this.citasService.update(uid, updateCitaDto);
   }
 
-  @Delete(':uid')
-  remove(@Param('uid') uid: string) {
-    return this.citasService.remove(uid);
+  @Patch(':uid')
+  cancelar(@Param('uid') uid: string) {
+    return this.citasService.cancelar(uid);
   }
 }

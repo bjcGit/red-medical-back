@@ -6,11 +6,13 @@ import { Cita } from './entities/cita.entity';
 import { SedesModule } from 'src/sedes/sedes.module';
 import { Usuario } from 'src/auth/entities/user.entity';
 import { AuthModule } from 'src/auth/auth.module';
+import { UsuariosModule } from 'src/usuarios/usuarios.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Cita, Usuario]),
   AuthModule,
-  SedesModule
+  SedesModule,
+  UsuariosModule
 ],
   controllers: [CitasController],
   providers: [CitasService],

@@ -31,34 +31,34 @@ export class Usuario {
   @Column('varchar', { unique: true })
   cedula: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   telefono?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   direccion?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   sexo?: string;
 
-  @Column({ nullable: true })
-  fecha_nacimiento?: Date;
+  @Column({ nullable: true, default: "No aplica" }) 
+  fecha_nacimiento?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   especialidad?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   registro_profesional?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   cargo?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   eps?: string;
 
   @Column({ default: true })
   estado: boolean;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: "No aplica" }) 
   isEstado?: string;
 
   @ManyToOne(() => Sede, { nullable: true, eager: true })

@@ -11,13 +11,13 @@ export class Sede {
   @Column('varchar')
   direccion: string;
 
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: true, default: "No aplica" })
   telefono: string;
 
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: true, default: "No aplica" })
   ciudad: string;
 
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: true, default: "No aplica" })
   departamento: string;
 
   @Column('boolean', { default: true })

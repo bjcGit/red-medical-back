@@ -31,5 +31,10 @@ export class CreateHistoriaClinicaDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
+  estado?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
   tratamiento?: string;
 }

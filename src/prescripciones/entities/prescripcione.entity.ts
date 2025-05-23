@@ -22,7 +22,7 @@ export class Prescripcione {
   @Column("text")
   medicamentos: string;
 
-  @Column("text", { nullable: true })
+  @Column("text", { nullable: true, default: "No aplica" })
   recomendaciones: string;
 
   @CreateDateColumn()

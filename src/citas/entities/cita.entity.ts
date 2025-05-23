@@ -25,7 +25,7 @@ export class Cita {
   @Column('varchar', { nullable: true })
   motivo: string;
 
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { nullable: true, default: 'Programada' })
   estado: string;
 
   @CreateDateColumn()

@@ -19,16 +19,16 @@ export class PrescripcionesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.prescripcionesService.findOne(+id);
+    return this.prescripcionesService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePrescripcioneDto: UpdatePrescripcioneDto) {
-    return this.prescripcionesService.update(+id, updatePrescripcioneDto);
+    return this.prescripcionesService.update(id, updatePrescripcioneDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.prescripcionesService.remove(+id);
+    return this.prescripcionesService.remove(id);
   }
 }

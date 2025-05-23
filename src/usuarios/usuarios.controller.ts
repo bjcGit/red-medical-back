@@ -20,7 +20,7 @@ export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   @Get()
-  @Auth(Rol.administrativo)
+  // @Auth(Rol.administrativo)
   findAll(@Query("sedeId") sedeId?: string, @Query("rol") rol?: string) {
     return this.usuariosService.findAll({ sedeId, rol });
   }
@@ -31,7 +31,7 @@ export class UsuariosController {
     return this.usuariosService.findOne(id);
   }
 
-  @Patch("update/:id")
+  @Patch("/:id")
   // @Auth(Rol.admin)
   update(@Param("id") id: string, @Body() updateUsuarioDto: UpdateUserDto) {
     return this.usuariosService.update(id, updateUsuarioDto);

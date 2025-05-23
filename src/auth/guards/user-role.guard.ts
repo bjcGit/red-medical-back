@@ -35,5 +35,7 @@ export class UserRoleGuard implements CanActivate {
       return true;
     }
 
+    throw new ForbiddenException(`El usuario no tiene permisos necesarios`);
+
   }
 }

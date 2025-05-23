@@ -102,6 +102,11 @@ export class CreateUserDto {
   eps?: string;
 
   @ApiProperty()
+  @IsString()
+  @IsOptional()
+  cargo?: string;
+
+  @ApiProperty()
   @IsNumber()
   @IsOptional()
   creado_por?: number;

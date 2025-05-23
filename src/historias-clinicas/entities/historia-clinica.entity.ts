@@ -20,18 +20,21 @@ export class HistoriaClinica {
   @Column('text')
   motivo_consulta: string;
 
-  @Column('text', { nullable: true })
+  @Column('varchar', { nullable: true, default: "Diagnosticado" })
+  estado: string;
+
+  @Column('text', { nullable: true, default: "No aplica" })
   antecedentes: string;
 
-  @Column('text', { nullable: true })
+  @Column('text', { nullable: true, default: "No aplica" })
   diagnostico: string;
 
-  @Column('text', { nullable: true })
+  @Column('text', { nullable: true, default: "No aplica" })
   tratamiento: string;
 
   @CreateDateColumn()
   fecha_creacion: Date;
 
-  @UpdateDateColumn({ nullable: true })
+  @UpdateDateColumn()
   fecha_modificacion: Date;
 }

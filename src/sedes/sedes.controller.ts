@@ -27,8 +27,8 @@ export class SedesController {
     return this.sedesService.update(uid, updateSedeDto);
   }
 
-  @Delete(':uid')
-  remove(@Param('uid') uid: string) {
-    return this.sedesService.remove(uid);
+  @Patch(':uid')
+  desactivar(@Param('uid') uid: string) {
+    return this.sedesService.desactivar(uid);
   }
 }

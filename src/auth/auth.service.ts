@@ -71,53 +71,53 @@ async login(loginUserDto: LoginUserDto) {
   try {
     const { correo, password } = loginUserDto;
 
-    // Buscar usuario incluyendo el password encriptado
-    const user = await this.authRepository.findOne({
-      where: { correo },
-      select: {
-        uid: true,
-        correo: true,
-        password: true,
-        rol: true,
-        nombre: true,
-        estado: true,
-      },
-    });
+  // Buscar usuario incluyendo el password encriptado
+  const user = await this.authRepository.findOne({
+    where: { correo },
+    select: {
+      uid: true,
+      correo: true,
+      password: true,
+      rol: true,
+      nombre: true,
+      estado: true,
+    },
+  });
 
-    if (!user) {
-      throw new BadRequestException({
-        message: "Necesitas permisos del administrador del aplicativo para ingresar aquí",
-      });
-    }
+  if (!user) {
+    throw new BadRequestException("Necesitas permisos del administrador del aplicativo para ingresar aquí");
+  }
 
-    if (!user.estado) {
-      throw new BadRequestException({
-        message: "Usuario desactivado, comunícate con el administrador",
-      });
-    }
+  if (!user.estado) {
+    throw new BadRequestException("Usuario desactivado, comunícate con el administrador");
+  }
 
-    // Validar que el password coincida
-    const passwordValido = await bcrypt.compare(password, user.password);
-    if (!passwordValido) {
-      throw new BadRequestException({
-        message: "Credenciales incorrectas",
-      });
-    }
+  // Validar que el password coincida
+  const passwordValido = await bcrypt.compare(password, user.password);
+  if (!passwordValido) {
+    throw new BadRequestException("Credenciales incorrectas");
+  }
 
-    // Retornar token y datos públicos
-    return {
-      token: this.getJwtToken({ uid: user.uid }),
-      user: {
-        id: user.uid,
-        correo: user.correo,
-        nombre: user.nombre,
-        rol: user.rol,
-      },
-    };
-
+  // Retornar token y datos públicos
+  return {
+    token: this.getJwtToken({ uid: user.uid }),
+    user: {
+      id: user.uid,
+      correo: user.correo,
+      nombre: user.nombre,
+      rol: user.rol,
+    },
+  };
   } catch (error) {
-    console.error(error);
-    throw new BadRequestException("Error en el servicio, revisa los logs");
+     console.error(error);
+
+  // Si ya es una excepción de Nest, simplemente relánzala
+  if (error instanceof BadRequestException) {
+    throw error;
+  }
+
+  // Si es otra cosa inesperada
+  throw new BadRequestException("Error en el servicio, revisa los logs");
   }
 }
 

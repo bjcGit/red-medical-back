@@ -10,8 +10,8 @@ export class Horario {
   @JoinColumn({ name: 'profesional_uid' })
   profesional: Usuario;
 
-  @Column('date')
-  fecha: Date;
+  @Column('varchar')
+  fecha: string;
 
   @Column('time')
   hora_inicio: string;

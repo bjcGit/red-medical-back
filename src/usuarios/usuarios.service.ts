@@ -9,6 +9,7 @@ import { Usuario } from "src/auth/entities/user.entity";
 import { handleCustomError } from "src/functions/error";
 import { Sede } from "src/sedes/entities/sede.entity";
 import { Repository } from "typeorm";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService {
@@ -60,24 +61,48 @@ async findAll(filtros?: { sedeId?: string; rol?: string }) {
 
 async update(uid: string, updateUsuarioDto: UpdateUserDto) {
   try {
-    const usuarioExistente = await this.usuarioRepository.findOneBy({ uid });
-    if (!usuarioExistente) {
+    // Buscar el usuario
+    const usuario = await this.usuarioRepository.findOne({
+      where: { uid },
+      relations: ['sede'],
+    });
+
+    if (!usuario) {
       throw new NotFoundException(`No existe el usuario con ID: ${uid}`);
     }
 
-    if (updateUsuarioDto.sedeId) {
+    // Manejo de sede
+    if (updateUsuarioDto.sedeId && updateUsuarioDto.sedeId !== usuario.sede?.uid) {
       const sede = await this.sedeRepository.findOneBy({ uid: updateUsuarioDto.sedeId });
       if (!sede) {
         throw new BadRequestException('La sede indicada no existe');
       }
-      usuarioExistente.sede = sede;
+      usuario.sede = sede;
     }
 
-    const usuarioActualizado = this.usuarioRepository.merge(usuarioExistente, updateUsuarioDto);
-    await this.usuarioRepository.save(usuarioActualizado);
-    return usuarioActualizado;
+    // Manejo de contraseña
+    if (updateUsuarioDto.password) {
+      if (updateUsuarioDto.password.length < 6) {
+        throw new BadRequestException('La contraseña debe tener al menos 6 caracteres');
+      }
+      const salt = bcrypt.genSaltSync();
+      usuario.password = bcrypt.hashSync(updateUsuarioDto.password, salt);
+    }
+
+    // Eliminar campos que no se deben asignar directamente
+    const {
+      sedeId,
+      password, // ya fue manejado
+      ...restoCampos
+    } = updateUsuarioDto;
+
+    // Asignar el resto de los campos
+    Object.assign(usuario, restoCampos);
+
+    // Guardar usuario actualizado
+    return await this.usuarioRepository.save(usuario);
   } catch (error) {
-    console.log(error);
+    console.error('Error al actualizar usuario:', error);
     throw handleCustomError(error);
   }
 }
