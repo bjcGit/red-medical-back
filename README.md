@@ -27,8 +27,8 @@ Backend API desarrollada en [NestJS](https://nestjs.com) para la gestión de una
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tuusuario/gestion-clinica-backend.git
-   cd gestion-clinica-backend
+   git clone https://github.com/bjcGit/red-medical-back.git
+   cd red-medical-back
    ```
 
 2. Instala las dependencias:
@@ -61,8 +61,8 @@ Variables comunes:
 DATABASE_HOST=localhost
 DATABASE_PORT=3306
 DATABASE_USERNAME=root
-DATABASE_PASSWORD=tu_contraseña
-DATABASE_NAME=clinica
+DATABASE_PASSWORD=
+DATABASE_NAME=medical
 JWT_SECRET=supersecreto
 PORT=3000
 ```
@@ -162,4 +162,4 @@ http://localhost:3000/api
 
 ## 📜 Licencia
 
-MIT License © 2025 [Tu Nombre o Empresa]
+MIT License © 2025 [Futurama]
