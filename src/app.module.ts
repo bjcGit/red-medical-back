@@ -9,10 +9,14 @@ import { CitasModule } from './citas/citas.module';
 import { HorariosModule } from './horarios/horarios.module';
 import { HistoriasClinicasModule } from './historias-clinicas/historias-clinicas.module';
 import { PrescripcionesModule } from './prescripciones/prescripciones.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { DashboardModule } from './dashboard/dashboard.module';
+
 
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({   
       type: 'mysql',
@@ -34,6 +38,8 @@ import { PrescripcionesModule } from './prescripciones/prescripciones.module';
     HorariosModule,
     HistoriasClinicasModule,
     PrescripcionesModule,
+    DashboardModule,
+
 
   ],
   controllers: [],

@@ -4,13 +4,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not } from 'typeorm';
+import { Repository, Not, LessThan } from 'typeorm';
 import { Cita } from './entities/cita.entity';
 import { CreateCitaDto } from './dto/create-cita.dto';
 import { UpdateCitaDto } from './dto/update-cita.dto';
 import { SedesService } from '../sedes/sedes.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { addMinutes } from 'date-fns';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class CitasService {
@@ -21,7 +22,7 @@ export class CitasService {
     private readonly usuariosService: UsuariosService,
     private readonly sedesService: SedesService,
   ) {}
-
+@Cron(CronExpression.EVERY_10_MINUTES)
 async create(createCitaDto: CreateCitaDto): Promise<Cita> {
   const { paciente_uid, profesional_uid, sede_uid, fecha_hora } = createCitaDto;
 
@@ -138,4 +139,20 @@ async create(createCitaDto: CreateCitaDto): Promise<Cita> {
       throw new BadRequestException('No se pudo cancelar la cita');
     }
   }
+async cancelarCitasNoAtendidas() {
+  const ahora = new Date();
+
+  const resultado = await this.citaRepository
+    .createQueryBuilder()
+    .update()
+    .set({ estado: 'Cancelada' })
+    .where("fecha_hora < :ahora", { ahora })
+    .andWhere("estado = :estado", { estado: 'Programada' })
+    .execute();
+
+  if (resultado.affected && resultado.affected > 0) {
+    console.log(`Citas canceladas automáticamente: ${resultado.affected}`);
+  }
+}
+
 }
